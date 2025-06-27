@@ -5,6 +5,7 @@ import { Hero } from "@/components/hero";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
 import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
+import { Button } from "@/components/ui/button";
 import { hasEnvVars } from "@/lib/utils";
 import Link from "next/link";
 
@@ -18,6 +19,11 @@ export default function Home() {
               <Link href={"/"}>Next.js Supabase Starter</Link>
               <div className="flex items-center gap-2">
                 <DeployButton />
+                <Link href={"/admin/login"}>
+                  <Button className="flex items-center gap-2" size="sm">
+                    <span>Login ReVAMS</span>
+                  </Button>
+                </Link>
               </div>
             </div>
             {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
