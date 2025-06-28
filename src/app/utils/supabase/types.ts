@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      attendance_codes: {
+        Row: {
+          created_at: string
+          event_id: number
+          id: number
+          link_text: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: number
+          id?: number
+          link_text?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: number
+          id?: number
+          link_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_codes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           attendance_type: Database["public"]["Enums"]["Attendance_Type"]
@@ -43,16 +72,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "attendace_records_student_id_fkey"
+            foreignKeyName: "attendance_records_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["student_id_number"]
+            referencedRelation: "student"
+            referencedColumns: ["id"]
           },
         ]
       }
       attendance_slots: {
         Row: {
+          attendance_code_expiration: string
           created_at: string
           event_id: number
           fine_amount: number
@@ -62,6 +92,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          attendance_code_expiration: string
           created_at?: string
           event_id: number
           fine_amount: number
@@ -71,6 +102,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          attendance_code_expiration?: string
           created_at?: string
           event_id?: number
           fine_amount?: number
@@ -92,30 +124,30 @@ export type Database = {
       events: {
         Row: {
           created_at: string
+          custom_email_message: string
           custom_email_subject: string
           date: string
           id: number
           name: string
           organization_id: number
-          self_attendance_link_id: number
         }
         Insert: {
           created_at?: string
+          custom_email_message: string
           custom_email_subject?: string
           date: string
           id?: number
           name?: string
           organization_id: number
-          self_attendance_link_id: number
         }
         Update: {
           created_at?: string
+          custom_email_message?: string
           custom_email_subject?: string
           date?: string
           id?: number
           name?: string
           organization_id?: number
-          self_attendance_link_id?: number
         }
         Relationships: [
           {
@@ -123,13 +155,6 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "events_self_attendance_link_id_fkey"
-            columns: ["self_attendance_link_id"]
-            isOneToOne: false
-            referencedRelation: "self_attendance_codes"
             referencedColumns: ["id"]
           },
         ]
@@ -206,19 +231,67 @@ export type Database = {
           },
         ]
       }
+      organization_student: {
+        Row: {
+          abandon_date: string | null
+          custom_role: Database["public"]["Enums"]["User_Roles"]
+          id: number
+          joined_date: string
+          organization_id: number
+          student_id: string
+        }
+        Insert: {
+          abandon_date?: string | null
+          custom_role: Database["public"]["Enums"]["User_Roles"]
+          id?: number
+          joined_date?: string
+          organization_id: number
+          student_id: string
+        }
+        Update: {
+          abandon_date?: string | null
+          custom_role?: Database["public"]["Enums"]["User_Roles"]
+          id?: number
+          joined_date?: string
+          organization_id?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_student_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_student_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
+          custom_role: Database["public"]["Enums"]["User_Roles"]
+          description: string | null
           id: number
           name: string
         }
         Insert: {
           created_at?: string
+          custom_role: Database["public"]["Enums"]["User_Roles"]
+          description?: string | null
           id?: number
           name?: string
         }
         Update: {
           created_at?: string
+          custom_role?: Database["public"]["Enums"]["User_Roles"]
+          description?: string | null
           id?: number
           name?: string
         }
@@ -257,8 +330,44 @@ export type Database = {
             foreignKeyName: "payables_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["student_id_number"]
+            referencedRelation: "student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payables_receipts: {
+        Row: {
+          created_at: string
+          id: number
+          payable_id: number | null
+          receipt_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          payable_id?: number | null
+          receipt_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          payable_id?: number | null
+          receipt_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payables_receipts_payable_id_fkey"
+            columns: ["payable_id"]
+            isOneToOne: false
+            referencedRelation: "payables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payables_receipts_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -267,66 +376,33 @@ export type Database = {
           created_at: string
           id: number
           paid_amount: number
-          paid_on: string
-          payable_id: number
           remarks: string | null
         }
         Insert: {
           created_at?: string
           id?: number
           paid_amount: number
-          paid_on: string
-          payable_id: number
           remarks?: string | null
         }
         Update: {
           created_at?: string
           id?: number
           paid_amount?: number
-          paid_on?: string
-          payable_id?: number
           remarks?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "receipts_payable_id_fkey"
-            columns: ["payable_id"]
-            isOneToOne: false
-            referencedRelation: "payables"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      self_attendance_codes: {
-        Row: {
-          created_at: string
-          id: number
-          link_text: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          link_text?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          link_text?: string
         }
         Relationships: []
       }
-      students: {
+      student: {
         Row: {
           created_at: string
           degree: string
           email_address: string
           first_name: string
+          id: string
           last_name: string
           major: string | null
           middle_name: string | null
-          organization_id: number
           program: string
-          student_id_number: string
           year: number
         }
         Insert: {
@@ -334,12 +410,11 @@ export type Database = {
           degree?: string
           email_address?: string
           first_name?: string
+          id: string
           last_name?: string
           major?: string | null
           middle_name?: string | null
-          organization_id: number
           program: string
-          student_id_number?: string
           year: number
         }
         Update: {
@@ -347,44 +422,32 @@ export type Database = {
           degree?: string
           email_address?: string
           first_name?: string
+          id?: string
           last_name?: string
           major?: string | null
           middle_name?: string | null
-          organization_id?: number
           program?: string
-          student_id_number?: string
           year?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "students_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       users: {
         Row: {
+          active: boolean
           created_at: string
-          full_name: string
           id: string
-          role: Database["public"]["Enums"]["User_Roles"]
           student_id: string
         }
         Insert: {
+          active?: boolean
           created_at?: string
-          full_name?: string
           id?: string
-          role: Database["public"]["Enums"]["User_Roles"]
           student_id: string
         }
         Update: {
+          active?: boolean
           created_at?: string
-          full_name?: string
           id?: string
-          role?: Database["public"]["Enums"]["User_Roles"]
           student_id?: string
         }
         Relationships: [
@@ -392,8 +455,8 @@ export type Database = {
             foreignKeyName: "users_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["student_id_number"]
+            referencedRelation: "student"
+            referencedColumns: ["id"]
           },
         ]
       }

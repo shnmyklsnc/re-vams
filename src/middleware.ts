@@ -2,6 +2,12 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "./app/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // Skip middleware for the set-session endpoint
+  //for postman testing only
+  if (request.nextUrl.pathname === '/api/auth/set-session') {
+    return;
+  }
+  
   return await updateSession(request);
 }
 
