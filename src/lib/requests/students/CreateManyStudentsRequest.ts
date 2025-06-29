@@ -8,14 +8,13 @@ import { FormRequest } from '../BaseRequest';
 
 const studentSchema = z.object({
   id: z.string().min(1, 'Student ID is required and must be a string'),
-  program: z.string().min(1, 'Program is required and must be a string'),
+  program_id: z.number().int('Program ID must be an integer').min(1, 'Program ID is required'),
   year: z.number().int('Year must be an integer').min(1).max(6),
-  degree: z.string().min(1, 'Degree is required and must be a string'),
+  degree_id: z.number().int('Degree ID must be an integer').min(1, 'Degree ID is required'),
   email_address: z.string().email('Invalid email address format'),
-  first_name: z.string(),
-  last_name: z.string(),
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
   middle_name: z.string().nullable().optional(),
-  major: z.string().nullable().optional(),
 }).passthrough();
 
 const createManyStudentsSchema = z.object({
@@ -120,11 +119,15 @@ export class CreateManyStudentsRequest extends FormRequest<CreateManyStudentsDat
       return this.getYearErrorResponse(firstError, studentPrefix);
     }
 
-    if (['id', 'program'].includes(field as string) && this.isMissingFieldError(firstError)) {
-      return this.errorResponse(`${studentPrefix} is missing required fields (id, program, year).`, 400);
+    if (field === 'program_id') {
+      return this.errorResponse(`${studentPrefix} requires a valid program ID (must be a positive integer).`, 400);
     }
 
-    if (['first_name', 'last_name'].includes(field as string) && firstError.code === 'invalid_type') {
+    if (field === 'degree_id') {
+      return this.errorResponse(`${studentPrefix} requires a valid degree ID (must be a positive integer).`, 400);
+    }
+
+    if (['id', 'first_name', 'last_name'].includes(field as string) && this.isMissingFieldError(firstError)) {
       return this.errorResponse(`${studentPrefix} is missing required field: ${field}.`, 400);
     }
 
@@ -158,8 +161,6 @@ export class CreateManyStudentsRequest extends FormRequest<CreateManyStudentsDat
     return NextResponse.json({ error: { code: status, message } }, { status });
   }
 
-
-
   //utilities
   getStudents() {
     return this.validated().students;
@@ -181,12 +182,16 @@ export class CreateManyStudentsRequest extends FormRequest<CreateManyStudentsDat
     return this.getStudents().filter(s => s.year === year);
   }
 
-  getStudentsByProgram(program: string) {
-    return this.getStudents().filter(s => s.program === program);
+  getStudentsByProgramId(program_id: number) {
+    return this.getStudents().filter(s => s.program_id === program_id);
   }
 
-  getUniquePrograms() {
-    return [...new Set(this.getStudents().map(s => s.program))];
+  getUniqueProgramIds() {
+    return [...new Set(this.getStudents().map(s => s.program_id))];
+  }
+
+  getUniqueDegreeIds() {
+    return [...new Set(this.getStudents().map(s => s.degree_id))];
   }
 
   getUniqueYears() {
@@ -201,7 +206,8 @@ export class CreateManyStudentsRequest extends FormRequest<CreateManyStudentsDat
     const students = this.getStudents();
     return {
       totalStudents: students.length,
-      programs: this.getUniquePrograms(),
+      programIds: this.getUniqueProgramIds(),
+      degreeIds: this.getUniqueDegreeIds(),
       years: this.getUniqueYears(),
       studentsWithEmails: this.getStudentsWithEmails().length,
       studentsWithMiddleNames: students.filter(s => s.middle_name).length,

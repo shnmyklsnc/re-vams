@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const validationError = await customRequest.validate();
   
   if (validationError) {
-    return validationError; // Return validation errors
+    return validationError; //return custom validation error
   }
 
   try {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Database operation
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from('student')
+      .from('students')
       .insert(students)
       .select();
 

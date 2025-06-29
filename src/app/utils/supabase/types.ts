@@ -75,7 +75,7 @@ export type Database = {
             foreignKeyName: "attendance_records_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "student"
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -120,6 +120,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      degrees: {
+        Row: {
+          id: number
+          name: string
+        }
+        Insert: {
+          id?: number
+          name: string
+        }
+        Update: {
+          id?: number
+          name?: string
+        }
+        Relationships: []
       }
       events: {
         Row: {
@@ -268,7 +283,7 @@ export type Database = {
             foreignKeyName: "organization_student_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "student"
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -330,7 +345,7 @@ export type Database = {
             foreignKeyName: "payables_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "student"
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -371,6 +386,24 @@ export type Database = {
           },
         ]
       }
+      programs: {
+        Row: {
+          id: number
+          major: string | null
+          name: string
+        }
+        Insert: {
+          id?: number
+          major?: string | null
+          name: string
+        }
+        Update: {
+          id?: number
+          major?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       receipts: {
         Row: {
           created_at: string
@@ -392,44 +425,56 @@ export type Database = {
         }
         Relationships: []
       }
-      student: {
+      students: {
         Row: {
           created_at: string
-          degree: string
+          degree_id: number
           email_address: string
           first_name: string
           id: string
           last_name: string
-          major: string | null
           middle_name: string | null
-          program: string
+          program_id: number
           year: number
         }
         Insert: {
           created_at?: string
-          degree?: string
+          degree_id: number
           email_address?: string
           first_name?: string
           id: string
           last_name?: string
-          major?: string | null
           middle_name?: string | null
-          program: string
+          program_id: number
           year: number
         }
         Update: {
           created_at?: string
-          degree?: string
+          degree_id?: number
           email_address?: string
           first_name?: string
           id?: string
           last_name?: string
-          major?: string | null
           middle_name?: string | null
-          program?: string
+          program_id?: number
           year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "students_degree_id_fkey"
+            columns: ["degree_id"]
+            isOneToOne: false
+            referencedRelation: "degrees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -455,7 +500,7 @@ export type Database = {
             foreignKeyName: "users_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "student"
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
