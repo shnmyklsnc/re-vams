@@ -72,7 +72,7 @@ export class CreateManyStudentsRequest extends FormRequest<CreateManyStudentsDat
 
   private handleZodValidationError(error: ZodError): NextResponse {
     const firstError = error.errors[0];
-    const [_, index, field] = firstError.path;
+    const [, index, field] = firstError.path;
 
     console.log('Zod Error Details:', {
       message: firstError.message,

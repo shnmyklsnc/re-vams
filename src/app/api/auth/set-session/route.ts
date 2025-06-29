@@ -1,9 +1,7 @@
-// src/app/api/auth/set-session/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/app/utils/supabase/server";
 
 //for postman api testing only
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -39,7 +37,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-  } catch (error) {
+  } catch  {
     return NextResponse.json(
       { error: "Invalid JSON or server error" },
       { status: 400 }
