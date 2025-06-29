@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError, ZodType, ZodTypeDef } from 'zod';
 
-export abstract class BaseRequest<T = any> {
+export abstract class BaseRequest<T> {
   protected request: NextRequest;
   protected validatedData?: T;
 
@@ -9,7 +9,7 @@ export abstract class BaseRequest<T = any> {
     this.request = request;
   }
 
-  abstract rules(): ZodType<T, ZodTypeDef, any>;
+  abstract rules(): ZodType<T, ZodTypeDef>;
   abstract authorize(): Promise<boolean> | boolean;
 
   //Custom error messages
@@ -102,6 +102,6 @@ export abstract class BaseRequest<T = any> {
 }
 
 // FormRequest class for body-based requests
-export abstract class FormRequest<T = any> extends BaseRequest<T> {
+export abstract class FormRequest<T> extends BaseRequest<T> {
   // FormRequest is specifically for POST/PUT/PATCH requests with JSON body
 }
